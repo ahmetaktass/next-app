@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -6,64 +6,70 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 
-const AddUserDialog = ({ open, onClose, onAddUser }) => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+const EditUserDialog = ({ open, onClose, onEditUser, userData }) => {
+  const [editedUser, setEditedUser] = useState({});
+  useEffect(() => {
+    setEditedUser(userData);
+  }, [userData]);
 
-  const handleAddUser = () => {
-    onAddUser({
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
+  const handleEditUser = () => {
+    setEditedUser((prevEditedUser) => {
+      onEditUser(prevEditedUser);
+      onClose();
+      return prevEditedUser;
     });
-    onClose();
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Yeni Kullanıcı Ekle</DialogTitle>
+      <DialogTitle>Kullanıcı Düzenle</DialogTitle>
       <DialogContent>
         <TextField
           label="Ad"
           variant="outlined"
           fullWidth
           margin="normal"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          value={editedUser?.firstName || ""}
+          onChange={(e) =>
+            setEditedUser({ ...editedUser, firstName: e.target.value })
+          }
         />
         <TextField
           label="Soyad"
           variant="outlined"
           fullWidth
           margin="normal"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
+          value={editedUser?.lastName || ""}
+          onChange={(e) =>
+            setEditedUser({ ...editedUser, lastName: e.target.value })
+          }
         />
         <TextField
-          label="E-posta"
+          label="Ünvan"
           variant="outlined"
           fullWidth
           margin="normal"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={editedUser?.title || ""}
+          onChange={(e) =>
+            setEditedUser({ ...editedUser, title: e.target.value })
+          }
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>İptal</Button>
         <Button
-          onClick={handleAddUser}
+          onClick={handleEditUser}
           variant="contained"
           style={{
             backgroundColor: "#3468C0",
             color: "success",
           }}
         >
-          Ekle
+          Güncelle
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default AddUserDialog;
+export default EditUserDialog;
