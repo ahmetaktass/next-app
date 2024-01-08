@@ -1,73 +1,48 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import React from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsers, deleteUser } from "../../lib/features/userSlice";
 import Image from "next/image";
 import Grid from "@mui/material/Grid";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteUserDialog from "./DeleteUserDialog";
+
 const Users = () => {
-  const [userData, setUserData] = useState(null);
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state.users.data);
+  const [openDialog, setOpenDialog] = React.useState(false);
+  const [deleteUserId, setDeleteUserId] = React.useState(null);
 
   useEffect(() => {
-    // Sayfa yüklendiğinde yapılacak işlemler
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://dummyapi.io/data/v1/user", {
-          headers: {
-            "app-id": process.env.customKey,
-          },
-        });
+    dispatch(fetchUsers());
+  }, [dispatch]);
 
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data);
-        } else {
-          console.error("Veri çekme hatası:", response.status);
-        }
-      } catch (error) {
-        console.error("İstek hatası:", error);
-      }
-    };
+  const handleDelete = (userId) => {
+    setDeleteUserId(userId);
+    setOpenDialog(true);
+  };
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+  };
 
-    fetchData();
-  }, []);
-
-  const handleDelete = async (userId) => {
+  const handleConfirmDelete = async () => {
     try {
-      // Örnek olarak, silme işlemi için API isteği (Gerçek projenizde bu kısmı API'nize göre ayarlayın)
-      const response = await fetch(
-        `https://dummyapi.io/data/v1/user/${userId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "app-id": process.env.customKey,
-          },
-        }
-      );
-
-      if (response.ok) {
-        // Eğer silme işlemi başarılıysa, userData'yı güncelle
-        setUserData((prevUserData) => ({
-          ...prevUserData,
-          data: prevUserData.data.filter((user) => user.id !== userId),
-        }));
-      } else {
-        console.error("Silme işlemi başarısız:", response.status);
-      }
+      await dispatch(deleteUser(deleteUserId));
+      dispatch(fetchUsers());
+      setOpenDialog(false);
     } catch (error) {
       console.error("Silme işlemi sırasında hata oluştu:", error);
     }
-  };
-  const handleEdit = async (userId) => {
-    console.log("Edit");
   };
 
   return (
     <Grid container spacing={2}>
       {userData &&
-        userData.data.map((user) => (
+        userData?.data.map((user) => (
           <Grid item xs={12} sm={6} lg={3} key={user.id}>
-            <div className="flex items-center group  bg-gray-100 p-5 rounded-md  m-2 relative cursor-pointer">
+            <div className="flex items-center group bg-gray-100 p-5 rounded-md m-2 relative cursor-pointer">
               <Image
                 src={user.picture}
                 alt={`${user.firstName} ${user.lastName}`}
@@ -93,7 +68,6 @@ const Users = () => {
                   Sil
                 </DeleteIcon>
                 <EditIcon
-                  onClick={() => handleEdit(user.id)}
                   sx={{
                     color: "blue",
                     width: 30,
@@ -108,6 +82,16 @@ const Users = () => {
             </div>
           </Grid>
         ))}
+      <DeleteUserDialog
+        open={openDialog}
+        onClose={handleDialogClose}
+        onConfirm={handleConfirmDelete}
+        name={
+          userData?.data.find((user) => user.id === deleteUserId)?.firstName +
+          " " +
+          userData?.data.find((user) => user.id === deleteUserId)?.lastName
+        }
+      />
     </Grid>
   );
 };
