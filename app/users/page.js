@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers } from "../../lib/features/userSlice";
 import { deleteUser } from "../../lib/features/deleteUserSlice";
 import { createUser } from "../../lib/features/addUserSlice";
+import { updateUserById } from "../../lib/features/editUserSlice";
 import Image from "next/image";
 import Grid from "@mui/material/Grid";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -14,6 +15,7 @@ import { Button, Container, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AddUserDialog from "./AddUserDialog";
+import EditUserDialog from "./EditUserDialog";
 
 const Users = () => {
   const dispatch = useDispatch();
@@ -22,6 +24,8 @@ const Users = () => {
   const [deleteUserId, setDeleteUserId] = React.useState(null);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [openAddDialog, setOpenAddDialog] = React.useState(false);
+  const [editUserId, setEditUserId] = React.useState(null);
+  const [openEditDialog, setOpenEditDialog] = React.useState(false);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -66,6 +70,27 @@ const Users = () => {
       handleCloseAddDialog();
     } catch (error) {
       console.error("Kullanıcı eklenirken bir hata oluştu:", error);
+    }
+  };
+
+  // Kullanıcı düzenleme işlemleri
+  const handleEdit = (userId) => {
+    setEditUserId(userId);
+    setOpenEditDialog(true);
+  };
+  const handleEditDialogClose = () => {
+    setOpenEditDialog(false);
+  };
+
+  const handleConfirmEdit = async (editedUser) => {
+    try {
+      await dispatch(
+        updateUserById({ userId: editUserId, updatedUser: editedUser })
+      );
+      dispatch(fetchUsers());
+      setOpenEditDialog(false);
+    } catch (error) {
+      console.error("Güncelleme işlemi sırasında bir hata oluştu:", error);
     }
   };
 
@@ -123,10 +148,9 @@ const Users = () => {
                     }}
                     onClick={() => handleDelete(user.id)}
                     className="absolute top-2 right-2 hidden group-hover:block "
-                  >
-                    Sil
-                  </DeleteIcon>
+                  ></DeleteIcon>
                   <EditIcon
+                    onClick={() => handleEdit(user.id)}
                     sx={{
                       color: "blue",
                       width: 30,
@@ -134,9 +158,7 @@ const Users = () => {
                       cursor: "pointer",
                     }}
                     className="absolute top-10 right-2 hidden group-hover:block "
-                  >
-                    Düzenle
-                  </EditIcon>
+                  ></EditIcon>
                 </div>
               </div>
             </Grid>
@@ -155,6 +177,12 @@ const Users = () => {
           open={openAddDialog}
           onClose={handleCloseAddDialog}
           onAddUser={handleAddUser}
+        />
+        <EditUserDialog
+          open={openEditDialog}
+          onClose={handleEditDialogClose}
+          onEditUser={handleConfirmEdit}
+          userData={userData?.data.find((user) => user.id === editUserId)}
         />
       </Grid>
     </>
