@@ -2,7 +2,9 @@
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, deleteUser } from "../../lib/features/userSlice";
+import { fetchUsers } from "../../lib/features/userSlice";
+import { deleteUser } from "../../lib/features/deleteUserSlice";
+import { createUser } from "../../lib/features/addUserSlice";
 import Image from "next/image";
 import Grid from "@mui/material/Grid";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -11,6 +13,7 @@ import DeleteUserDialog from "./DeleteUserDialog";
 import { Button, Container, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import AddUserDialog from "./AddUserDialog";
 
 const Users = () => {
   const dispatch = useDispatch();
@@ -18,11 +21,13 @@ const Users = () => {
   const [openDialog, setOpenDialog] = React.useState(false);
   const [deleteUserId, setDeleteUserId] = React.useState(null);
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [openAddDialog, setOpenAddDialog] = React.useState(false);
 
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
+  // Kullanıcı silme işlemleri
   const handleDelete = (userId) => {
     setDeleteUserId(userId);
     setOpenDialog(true);
@@ -30,7 +35,6 @@ const Users = () => {
   const handleDialogClose = () => {
     setOpenDialog(false);
   };
-
   const handleConfirmDelete = async () => {
     try {
       await dispatch(deleteUser(deleteUserId));
@@ -40,10 +44,30 @@ const Users = () => {
       console.error("Silme işlemi sırasında hata oluştu:", error);
     }
   };
+
+  // Kullanıcı arama işlemleri
   const filteredUsers = userData?.data.filter((user) => {
     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
     return fullName.includes(searchTerm.toLowerCase());
   });
+
+  // Yeni kullanıcı ekleme işlemleri
+  const handleOpenAddDialog = () => {
+    setOpenAddDialog(true);
+  };
+
+  const handleCloseAddDialog = () => {
+    setOpenAddDialog(false);
+  };
+
+  const handleAddUser = (newUser) => {
+    try {
+      dispatch(createUser(newUser));
+      handleCloseAddDialog();
+    } catch (error) {
+      console.error("Kullanıcı eklenirken bir hata oluştu:", error);
+    }
+  };
 
   return (
     <>
@@ -66,6 +90,7 @@ const Users = () => {
             color: "success",
             height: "50px",
           }}
+          onClick={handleOpenAddDialog}
           endIcon={<PersonAddIcon />}
         >
           Ekle
@@ -125,6 +150,11 @@ const Users = () => {
             " " +
             userData?.data.find((user) => user.id === deleteUserId)?.lastName
           }
+        />
+        <AddUserDialog
+          open={openAddDialog}
+          onClose={handleCloseAddDialog}
+          onAddUser={handleAddUser}
         />
       </Grid>
     </>
