@@ -1,7 +1,12 @@
 import React from "react";
+import PostList from "./postlist";
 
 const Posts = () => {
-  return <div>Posts Sayfası</div>;
+  return (
+    <div>
+      <PostList />
+    </div>
+  );
 };
 
 export default Posts;
