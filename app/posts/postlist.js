@@ -8,10 +8,17 @@ import SearchIcon from "@mui/icons-material/Search";
 import truncate from "../components/UI/Truncate";
 import { Button, TextField } from "@mui/material";
 import PostAddIcon from "@mui/icons-material/PostAdd";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import DeletePostDialog from "./DeletePostDialog";
+import { deletePostById } from "../../lib/features/deletePostSlice";
+
 const PostList = () => {
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.postList.posts);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchPosts());
@@ -55,6 +62,26 @@ const PostList = () => {
     return tagColorMap[tag] || "bg-gray-200";
   };
 
+  const handleDeleteClick = (postId) => {
+    setSelectedPostId(postId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteDialogClose = () => {
+    setSelectedPostId(null);
+    setDeleteDialogOpen(false);
+  };
+
+  const handleDeletePost = async () => {
+    try {
+      await dispatch(deletePostById(selectedPostId));
+      dispatch(fetchPosts());
+      handleDeleteDialogClose();
+    } catch (error) {
+      console.error("Post silinirken bir hata oluştu:", error);
+    }
+    handleDeleteDialogClose();
+  };
   return (
     <div className="container mx-auto p-4">
       <div className="flex  gap-x-5 justify-center items-center w-1/2 mx-auto">
@@ -85,7 +112,7 @@ const PostList = () => {
         {filteredPosts.map((post) => (
           <div
             key={post.id}
-            className=" flex flex-col justify-between  border p-4 rounded shadow "
+            className=" flex flex-col justify-between  border p-4 rounded shadow group relative cursor-pointer "
           >
             <Image
               src={post.image}
@@ -138,8 +165,32 @@ const PostList = () => {
                 {post.likes}
               </p>
             </div>
+            <div className="bg-gray-100 shadow-lg shadow-indigo-500/40 p-2 rounded-full absolute top-2 -right-2 hidden group-hover:block">
+              <DeleteIcon
+                onClick={() => handleDeleteClick(post.id)}
+                sx={{
+                  color: "red",
+                  width: 30,
+                  height: 30,
+                  cursor: "pointer",
+                }}
+              ></DeleteIcon>
+              <EditIcon
+                sx={{
+                  color: "blue",
+                  width: 30,
+                  height: 30,
+                  cursor: "pointer",
+                }}
+              ></EditIcon>
+            </div>
           </div>
         ))}
+        <DeletePostDialog
+          open={deleteDialogOpen}
+          onClose={handleDeleteDialogClose}
+          onDelete={handleDeletePost}
+        />
       </div>
     </div>
   );
