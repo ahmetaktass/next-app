@@ -95,7 +95,7 @@ const Users = () => {
   };
 
   return (
-    <>
+    <div className="container mx-auto p-4">
       <div className="flex  gap-x-5 justify-center items-center w-1/2 mx-auto">
         <TextField
           className=" w-3/4 my-3"
@@ -125,7 +125,7 @@ const Users = () => {
       <Grid container spacing={2}>
         {filteredUsers &&
           filteredUsers.map((user) => (
-            <Grid item xs={12} sm={6} lg={3} key={user.id}>
+            <Grid item xs={12} sm={6} lg={4} key={user.id}>
               <div className="flex items-center group bg-gray-100 p-5 rounded-md m-2 relative cursor-pointer">
                 <Image
                   src={user.picture}
@@ -139,26 +139,26 @@ const Users = () => {
                     {user.firstName} {user.lastName}
                   </h2>
                   <p className="text-gray-500">{user.title}</p>
-                  <DeleteIcon
-                    sx={{
-                      color: "red",
-                      width: 30,
-                      height: 30,
-                      cursor: "pointer",
-                    }}
-                    onClick={() => handleDelete(user.id)}
-                    className="absolute top-2 right-2 hidden group-hover:block "
-                  ></DeleteIcon>
-                  <EditIcon
-                    onClick={() => handleEdit(user.id)}
-                    sx={{
-                      color: "blue",
-                      width: 30,
-                      height: 30,
-                      cursor: "pointer",
-                    }}
-                    className="absolute top-10 right-2 hidden group-hover:block "
-                  ></EditIcon>
+                  <div className="bg-gray-200 shadow-lg shadow-indigo-500/40 p-2 rounded-full absolute top-2 -right-2 hidden group-hover:block">
+                    <DeleteIcon
+                      sx={{
+                        color: "red",
+                        width: 30,
+                        height: 30,
+                        cursor: "pointer",
+                      }}
+                      onClick={() => handleDelete(user.id)}
+                    ></DeleteIcon>
+                    <EditIcon
+                      onClick={() => handleEdit(user.id)}
+                      sx={{
+                        color: "blue",
+                        width: 30,
+                        height: 30,
+                        cursor: "pointer",
+                      }}
+                    ></EditIcon>
+                  </div>
                 </div>
               </div>
             </Grid>
@@ -185,7 +185,7 @@ const Users = () => {
           userData={userData?.data.find((user) => user.id === editUserId)}
         />
       </Grid>
-    </>
+    </div>
   );
 };
 
