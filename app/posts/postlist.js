@@ -6,7 +6,7 @@ import Image from "next/image";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import SearchIcon from "@mui/icons-material/Search";
 import truncate from "../components/UI/Truncate";
-import { Button, TextField } from "@mui/material";
+import { Button, Grid, TextField } from "@mui/material";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -108,90 +108,90 @@ const PostList = () => {
           Ekle
         </Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+      <Grid container spacing={2}>
         {filteredPosts.map((post) => (
-          <div
-            key={post.id}
-            className=" flex flex-col justify-between  border p-4 rounded shadow group relative cursor-pointer "
-          >
-            <Image
-              src={post.image}
-              alt={post.text}
-              className="w-full h-40 object-cover mb-4"
-              width={300}
-              height={300}
-            />
-            <p className=" text-lg font-bold mb-2 ">
-              {truncate(post.text, 25)}
-            </p>
-            <div className="flex items-center gap-x-2 py-2 border-b-2">
+          <Grid item xs={12} sm={6} lg={3} key={post.id}>
+            <div className=" flex flex-col justify-between  border p-4 rounded shadow group relative cursor-pointer ">
               <Image
-                src={post.owner.picture}
-                width={40}
-                height={40}
-                alt={post.owner.picture}
-                className="rounded-full"
+                src={post.image}
+                alt={post.text}
+                className="w-full h-40 object-cover mb-4"
+                width={300}
+                height={300}
               />
-              <p className="text-gray-500">
-                {post.owner.firstName} {post.owner.lastName}
+              <p className=" text-lg font-bold mb-2 ">
+                {truncate(post.text, 25)}
               </p>
-            </div>
-            <div>
-              {post.tags.map((tag, index) => (
-                <p
-                  key={index}
-                  className={` text-black font-bold inline-block p-1 rounded my-2 mr-2 ${getTagColorClass(
-                    tag
-                  )}`}
-                >
-                  {tag}
+              <div className="flex items-center gap-x-2 py-2 border-b-2">
+                <Image
+                  src={post.owner.picture}
+                  width={40}
+                  height={40}
+                  alt={post.owner.picture}
+                  className="rounded-full"
+                />
+                <p className="text-gray-500">
+                  {post.owner.firstName} {post.owner.lastName}
                 </p>
-              ))}
-            </div>
+              </div>
+              <div>
+                {post.tags.map((tag, index) => (
+                  <p
+                    key={index}
+                    className={` text-black font-bold inline-block p-1 rounded my-2 mr-2 ${getTagColorClass(
+                      tag
+                    )}`}
+                  >
+                    {tag}
+                  </p>
+                ))}
+              </div>
 
-            <div className="flex items-center justify-between">
-              <p className="text-gray-500">
-                {new Date(post.publishDate).toLocaleDateString()}
-              </p>
-              <p className="text-gray-500 flex items-center gap-x-2">
-                <ThumbUpIcon
+              <div className="flex items-center justify-between">
+                <p className="text-gray-500">
+                  {new Date(post.publishDate).toLocaleDateString()}
+                </p>
+                <p className="text-gray-500 flex items-center gap-x-2">
+                  <ThumbUpIcon
+                    sx={{
+                      color: " #3468C0",
+                      width: 20,
+                      height: 20,
+                      cursor: "pointer",
+                    }}
+                  />{" "}
+                  {post.likes}
+                </p>
+              </div>
+              <div className="bg-gray-100 shadow-lg shadow-indigo-500/40 p-2 rounded-full absolute top-2 -right-2 hidden group-hover:block">
+                <DeleteIcon
+                  onClick={() => handleDeleteClick(post.id)}
                   sx={{
-                    color: " #3468C0",
-                    width: 20,
-                    height: 20,
+                    color: "red",
+                    width: 30,
+                    height: 30,
                     cursor: "pointer",
                   }}
-                />{" "}
-                {post.likes}
-              </p>
+                ></DeleteIcon>
+                <EditIcon
+                  sx={{
+                    color: "blue",
+                    width: 30,
+                    height: 30,
+                    cursor: "pointer",
+                  }}
+                ></EditIcon>
+              </div>
             </div>
-            <div className="bg-gray-100 shadow-lg shadow-indigo-500/40 p-2 rounded-full absolute top-2 -right-2 hidden group-hover:block">
-              <DeleteIcon
-                onClick={() => handleDeleteClick(post.id)}
-                sx={{
-                  color: "red",
-                  width: 30,
-                  height: 30,
-                  cursor: "pointer",
-                }}
-              ></DeleteIcon>
-              <EditIcon
-                sx={{
-                  color: "blue",
-                  width: 30,
-                  height: 30,
-                  cursor: "pointer",
-                }}
-              ></EditIcon>
-            </div>
-          </div>
+          </Grid>
         ))}
+
         <DeletePostDialog
           open={deleteDialogOpen}
           onClose={handleDeleteDialogClose}
           onDelete={handleDeletePost}
         />
-      </div>
+      </Grid>
     </div>
   );
 };
